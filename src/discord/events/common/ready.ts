@@ -5,6 +5,9 @@ new Event({
   name: "Change the bot description",
   event: "ready",
   async run(client) {
+    client.user.setAvatar("https://i.imgur.com/uL4CChi.gif")
+    .then(user => console.log("New avatar set!"))
+    .catch(console.error);
     const guilds = new Map();
     for (const guild of client.guilds.cache) {
       const guildId = guild[1].id;
