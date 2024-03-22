@@ -56,6 +56,27 @@ export const guildSchema = new Schema(
       required: false,
     },
     //End Region Work
+    //Region Slut
+    lastSlutCommandTime: {
+      type: Date,
+      required: false,
+    },
+    SlutCooldown: {
+      default: "520",
+      type: String,
+      required: false,
+    },
+    SlutMinMoney: {
+      default: 800,
+      type: Number,
+      required: false,
+    },
+    SlutMaxMoney: {
+      default: 8000,
+      type: Number,
+      required: false,
+    },
+    //End Region Slut
   },
   {
     statics: {

@@ -13,7 +13,7 @@ new Command({
   type: ApplicationCommandType.ChatInput,
   async run(interaction) {
     const userId = interaction?.member.id;
-    const userName = interaction?.member.nickname;
+    const userName = interaction?.member.user.username;
     const guildId = interaction.guild.id;
     const guildName = interaction.guild.name;
 
@@ -138,6 +138,8 @@ new Command({
       .replace("{money}", ModuleFormat.en(parseInt(moneyEarned), 2))
       .replace("{emoji}", currency ?? ":coin:");
 
+    userData.Money += Number(moneyEarned);
+    await userData.save();
     guildData.lastWorkCommandTime = now;
     await guildData.save();
 
