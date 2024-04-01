@@ -77,6 +77,37 @@ export const guildSchema = new Schema(
       required: false,
     },
     //End Region Slut
+    //Region Slot Machine
+    lastSlotMachineCommandTime: {
+      type: Date,
+      required: false,
+    },
+    SlotMachineCooldown: {
+      default: "10",
+      type: String,
+      required: false,
+    },
+    SlotMachineMinMoney: {
+      default: 1000,
+      type: Number,
+      required: false,
+    },
+    SlotMachineMaxMoney: {
+      default: 10000,
+      type: Number,
+      required: false,
+    },
+    ChanceToWin: {
+      default: 50,
+      type: Number,
+      required: false,
+    },
+    ChanceToLose: {
+      default: 50,
+      type: Number,
+      required: false,
+    },
+    //End Region Slot Machine
   },
   {
     statics: {
