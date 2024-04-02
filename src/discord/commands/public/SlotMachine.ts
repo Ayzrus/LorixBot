@@ -11,13 +11,13 @@ import {
 
 new Command({
   name: "slotmachine",
-  description: "",
+  description: "Choose an amount to bet",
   dmPermission: false,
   type: ApplicationCommandType.ChatInput,
   options: [
     {
       name: "value",
-      description: "Choose an amount to bet",
+      description: "Amount to bet",
       type: ApplicationCommandOptionType.Number,
       required: true,
     },
@@ -38,7 +38,7 @@ new Command({
         guildId: guildId,
         guildName: guildName,
       });
-      log.success(`Guilda ${guildName} adicionada ao banco de dados.`);
+      log.success(`Guild ${guildName} (${guildId}) added to the database.`);
       await guildData.save();
     }
 
@@ -54,10 +54,15 @@ new Command({
         Bank: 0,
         Total: 0,
       });
-      log.success(
-        `Utilizador ${interaction.member.user.username} adicionado ao banco de dados.`
-      );
+      log.success(`User ${userName} (${userId}) added to the database.`);
       await userData.save();
+    }
+    if (value && userData.Money < value) {
+      interaction.reply({
+        content: "You dont have money to bet.",
+        ephemeral: true,
+      });
+      return;
     }
 
     const now = new Date();
@@ -100,10 +105,13 @@ new Command({
     // Adicione ícones ao embed em filas de 3
     for (let i = 0; i < 9; i += 3) {
       const row = [
-        { name: "Slot 1", value: randomRow[i], inline: true },
-        { name: "Slot 2", value: randomRow[i + 1], inline: true },
-        { name: "Slot 3", value: randomRow[i + 2], inline: true },
+        { name: "\u200B", value: randomRow[i], inline: true },
+        { name: "\u200B", value: randomRow[i + 1], inline: true },
+        { name: "\u200B", value: randomRow[i + 2], inline: true },
       ];
+      if (i === 3) {
+        row[2].value += " :arrow_backward:";
+      }
       embed.addFields(row);
     }
 
@@ -116,10 +124,44 @@ new Command({
       const min = guildData.SlutMinMoney ?? 300;
       const max = guildData.SlutMaxMoney ?? 3000;
       const currency = guildData.EmojiMoney;
-  
+
       const money = (Math.random() * (max - min) + min) * 2;
-      const moneyEarned = money.toFixed(2);
+
+      // Atualizar o tempo do último comando de roubo
+      guildData.lastSlotMachineCommandTime = now;
+      await guildData.save();
+
+      // Adicionar o dinheiro ao usuário
+      userData.Money = (userData.Money ?? 0) + money;
+      await userData.save();
+      await interaction.deferReply();
+      await interaction.deleteReply();
+      interaction.channel?.send({
+        content: `You bet and won ${ModuleFormat.en(money)} ${currency}`,
+        embeds: [embed],
+      });
     } else {
+      const currency = guildData.EmojiMoney;
+
+      // Crie um EmbedBuilder
+      const embed1 = new EmbedBuilder({
+        title: "Slot Machine Info",
+        color: 0xff0000, // Cor vermelha
+        description: `You bet but lost your money -${ModuleFormat.en(Number(value))} ${currency}`,
+        footer: { text: "© All rights reserved to AyzrusDev ©" },
+        thumbnail: {
+          url: "https://i.imgur.com/o2VwCM3.png",
+        },
+      });
+      await interaction.deferReply();
+      await interaction.deleteReply();
+      interaction.channel?.send({ embeds: [embed1] });
+
+      // Adicionar o dinheiro ao usuário
+      if (value) {
+        userData.Money = (userData.Money ?? 0) - value;
+      }
+      await userData.save();
     }
   },
 });
